@@ -2,9 +2,11 @@ import { registerValidate } from "@/lib/validate";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 const Register = () => {
   const router = useRouter();
+  const [error,setError] = useState("")
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -16,6 +18,7 @@ const Register = () => {
     onSubmit,
   });
 
+
   async function onSubmit(values) {
     const options = {
       method: "POST",
@@ -24,14 +27,19 @@ const Register = () => {
     };
 
     const response = await fetch(
-      "http://localhost:3000/api/auth/signup",
+      "/api/auth/signup",
       options
     );
-    const data = response.json();
-    if (data) {
+
+    if(response.ok){
       router.push("/");
     }
+    else{
+      const data = await response.json();
+      setError(data.error);
+    }
   }
+
   return (
     <>
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
@@ -157,6 +165,7 @@ const Register = () => {
                     </span>
                   </div>
                 </div>
+                {error && <div className="text-rose-600">{error}</div>}
               </form>
             </div>
           </div>
